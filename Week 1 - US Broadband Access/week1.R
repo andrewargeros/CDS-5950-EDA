@@ -32,7 +32,7 @@ geo = data %>%
   left_join(census, by = "GEOID") %>% 
   mutate(scale_usage = scale(usage))
 
-geo %$% cor(usage, biden_pct) ## Looks like biden counties make better use of internet
+geo %$% cor(usage, biden_pct) ## Looks like Biden counties make better use of internet
 
 election_plot = geo %>% 
   st_as_sf() %>% 
