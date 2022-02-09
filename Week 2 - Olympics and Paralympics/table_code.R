@@ -34,7 +34,7 @@ medal_table = df %>%
          flag_URL = glue('https://user.iiasa.ac.at/~marek/fbook/04/flags/{tolower(iso2)}-lgflag.gif'),
          flag_URL = ifelse(is.na(iso2), 'https://www.freepnglogos.com/uploads/olympic-rings-png/olympic-rings-denver-fact-colorado-hates-the-olympic-games-the-4.png', flag_URL),
          ccode = countrycode(sourcevar = team, origin = "country.name", destination = "iso2c", warn = FALSE),
-         team_rt = glue("*{team}*") %>% as.character()) %>% 
+         team_rt = str_replace(team, "[^A-Za-z]", ' ')) %>% 
   ungroup() %>% 
   relocate(flag_URL, .before = team) %>% 
   rename(yr = year)
@@ -90,32 +90,29 @@ for (year in unique(medal_table$yr)){
   plot = year_data %>% 
     ggplot() +
     aes(y = -rank_listing) +
-    geom_segment(aes(x = 0.1, xend = 3.9,yend = -rank_listing), linetype = "dotted", size = 0.5) +
-    geom_richtext(aes(label = team_rt, x = 0.5), fill = NA, label.color = NA, hjust = -0.25,
-                  label.padding = unit(0, "inches"), family = "Poppins", size = 25) +
-    geom_richtext(aes(label = Gold, x = 1.25), fill = '#FFD70070', label.color = '#FFD700', 
-                   family = "IBM Plex Mono", size = 25,
-                  color = 'gray20') +
-    geom_richtext(aes(label = Silver, x = 2.25), fill = '#BBC2CC', label.color = '#BBC2CC', 
-                  label.padding = unit(0, "inches"), family = "IBM Plex Mono", size = 25,
-                  color = 'gray20') +
-    geom_richtext(aes(label = Bronze, x = 3.25), fill = '#CD7F3270', label.color = '#CD7F32', 
-                  label.padding = unit(0, "inches"), family = "IBM Plex Mono", size = 25,
-                  color = 'gray20') +
-    geom_richtext(aes(label = rank_ord, x = 4), fill = NA, label.color = NA, 
-                  label.padding = unit(0, "inches"), family = "IBM Plex Mono", size = 25,
-                  color = 'gray20') +
-    geom_flag(aes(x = 0, country = tolower(ccode)), size = 20) +
-    annotate("richtext", x = c(0.125, 1.25, 2.25, 3.25, 4), y = 0, 
+    geom_segment(aes(x = 0.1, xend = 4.25, yend = -rank_listing), linetype = "dotted", size = 0.5) +
+    geom_label(aes(label = team_rt, x = 0.5), family = "IBM Plex Mono", size = 16.5, color = 'gray20',
+               label.size = NA) +
+    geom_label(aes(label = Gold, x = 1.25), color = '#d4af37', family = "IBM Plex Mono", size = 18,
+                  label.size = NA) +
+    geom_label(aes(label = Silver, x = 2.25), color = 'gray45', family = "IBM Plex Mono", size = 18,
+                  label.size = NA) +
+    geom_label(aes(label = Bronze, x = 3.25), color = '#CD7F32', family = "IBM Plex Mono", size = 18,
+                  label.size = NA) +
+    geom_label(aes(label = rank_ord, x = 4.25), color = 'gray20', family = "IBM Plex Mono", size = 20,
+               label.size = NA) +
+    geom_flag(aes(x = 0, country = tolower(ccode)), size = 12) +
+    annotate("richtext", x = c(0.2, 1.6, 2.8, 3.75, 4.6), y = 0.7, 
              label = c("", "**Gold**", "**Silver**", "**Bronze**", "**Total**"), 
-             hjust = 0.5, family = "Poppins", size = 30, label.color = NA, fill = NA) +
-    geom_vline(xintercept = 0.9, size = 0.5) +
+             hjust = 0.5, family = "Poppins", size = 30, label.color = NA, fill = NA,
+             color = c('white', '#d4af37', 'gray45', '#CD7F32', 'gray20')) +
+    geom_vline(xintercept = 0.92, size = 0.5) +
     geom_hline(yintercept = -0.55, size = 0.5) +
     theme_void() +
-    theme(plot.title = element_text(family = "Poppins", face = "bold", size = 50)) +
+    theme(plot.title = element_text(family = "Poppins", face = "bold", size = 100, color = 'gray20')) +
     ggtitle(glue(' The {games_year} {city} Winter Olympic Games'))
   
-  path_to_img = glue('C:/PersonalScripts/CDS-5950-EDA/Week 2 - Olympics and Paralympics/Images/{year}.png')
+  path_to_img = glue('C:/PersonalScripts/CDS-5950-EDA/Week 2 - Olympics and Paralympics/Images/{year} (Custom).png')
   
   img = image_read(path_to_img) %>% 
     image_colorize(50, "white")
@@ -123,9 +120,21 @@ for (year in unique(medal_table$yr)){
   ggdraw() +
     draw_image(img, scale = 0.3) +
     draw_plot(plot) +
-    draw_image(olympic_rings, x = -0.37, y = 0.46, scale = 0.15) +
+    draw_image(olympic_rings, x = -0.38, y = 0.435, scale = 0.15) +
     theme(plot.background = element_rect(fill = 'white'))
   
   ggsave(glue('C:/PersonalScripts/CDS-5950-EDA/Week 2 - Olympics and Paralympics/Plots/{year}_ggplot.png'),
-         height = 40, width = 12, units = "in")
+         width = 11, height = 15)
 }
+
+imgs = list.files("C:/PersonalScripts/CDS-5950-EDA/Week 2 - Olympics and Paralympics/Plots", 
+                  full.names = TRUE)
+img_list = lapply(imgs, image_read)
+
+img_joined = image_join(img_list)
+
+img_animated = img_joined %>% image_animate(fps = 4)
+
+image_write(image = img_animated,
+            path = "C:/PersonalScripts/CDS-5950-EDA/Week 2 - Olympics and Paralympics/medal_table.gif",
+            compression = 'LosslessJPEG')
