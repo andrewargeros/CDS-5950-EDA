@@ -11,4 +11,5 @@ These data sets are from the [Tidy Tuesday](https://github.com/rfordatascience/t
 | [Week 2](https://github.com/andrewargeros/CDS-5950-EDA/tree/main/Week%202%20-%20Olympics%20and%20Paralympics) | Olympics and Paralympics |
 | [Week 3](https://github.com/andrewargeros/CDS-5950-EDA/tree/main/Week%203%20-%20Beyonce%20and%20Taylor%20Swift) | Beyonce and Taylor Swift |
 | [Week 4](https://github.com/andrewargeros/CDS-5950-EDA/tree/main/Week%204%20-%20HBCUs) | HBCUs |
+| [Week 5](https://github.com/andrewargeros/CDS-5950-EDA/tree/main/Week%205%20-%20Womens%20Soccer) | Women's Soccer World Cup |
 
