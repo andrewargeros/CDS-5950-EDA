@@ -1,8 +1,13 @@
 library(tidyverse)
 library(wesanderson)
+library(ggimage)
+library(cowplot)
+library(magick)
 
 sysfonts::font_add_google('Libre Franklin')
 sysfonts::font_add_google('Red Hat Mono')
+sysfonts::font_add_google('Teko')
+sysfonts::font_add_google('Graduate')
 showtext::showtext_auto()
 
 df = read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-10-06/tournament.csv')
@@ -13,11 +18,6 @@ champs = df %>%
   summarise(champs = n_distinct(year)) %>% 
   filter(champs > 1,
          school != "Southern California")
-
-notes = tribble(
-  ~school, ~x, ~y, ~note,
-  
-)
 
 df %>% 
   inner_join(champs) %>% 
@@ -50,7 +50,15 @@ have led their teams to more victories than anyone else in the NCAA's Big Dance"
 
 ggsave("C:/PersonalScripts/CDS-5950-EDA/Week 7 - NCAA Women/power6.png", height = 4, width = 6)
 
-confs = df %>% 
+links = tribble(~conference, ~link,
+'Southeastern', '<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Southeastern_Conference_logo.svg/1200px-Southeastern_Conference_logo.svg.png">',
+'Big 12', '<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Big_12_Conference_%28cropped%29_logo.svg/1200px-Big_12_Conference_%28cropped%29_logo.svg.png">',
+'Atlantic Coast', '<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Atlantic_Coast_Conference_logo.svg/2560px-Atlantic_Coast_Conference_logo.svg.png">',
+'Pac-12', '<img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/ac/Pac-12_logo.svg/1200px-Pac-12_logo.svg.png">',
+'Big Ten', '<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Big_Ten_Conference_logo.svg/1280px-Big_Ten_Conference_logo.svg.png">') %>% 
+  mutate(src = str_remove_all(link, "^<img src=|>$") %>% str_remove_all('"'))
+
+df %>% 
   group_by(year, conference) %>% 
   summarise(n = n_distinct(school),
             seed = mean(seed, na.rm=T)) %>% 
@@ -60,11 +68,23 @@ confs = df %>%
             s = sum(n),
             avg_seed = mean(seed)) %>% 
   ungroup() %>% 
-  mutate(r = row_number())
+  slice_max(m, n = 5) %>% 
+  inner_join(links) %>% 
+  ggplot() +
+  aes(x = 0, xend = m,  y = reorder(conference, m), yend = reorder(conference, m), color = conference) +
+  geom_segment(size = 4, lineend = 'round') +
+  geom_image(aes(x = m+0.37, y = reorder(conference, m), image = src), size = 0.07, inherit.aes = F) +
+  scale_color_manual(values = c("#0039a8", "#e3443b", "#0081c3", "#0c294b", "#f2c83c")) +
+  theme_minimal(base_family = 'Teko', base_size = 30) +
+  theme(legend.position = 'none',
+        title = element_text(family = 'Graduate', face = 'bold', size = 30, hjust = 3),
+        plot.subtitle = element_text(lineheight = 0.5),
+        text = element_text(color = 'black'),
+        axis.text.y = element_text(size = 36),
+        plot.background = element_rect(fill = 'white')) +
+  labs(title = "The Power 5 in the Big Dance",
+       subtitle = "How many teams from the power 5 make it\nto the big dance in an average year?",
+       x = "",
+       y = element_blank(), caption = "Data: FiveThirtyEight | Andrew Argeros")
 
-byes = confs %>% 
-  slice_max(s, n = 2) %>% 
-  bind_cols(x = c(2.5, 7.5))
-
-MMBracketR::plotTourn(62) +
-  geom_text(data = byes, aes(x = x, y = 31, label = conference))
+ggsave("C:/PersonalScripts/CDS-5950-EDA/Week 7 - NCAA Women/conference.png", height = 6, width = 6)
