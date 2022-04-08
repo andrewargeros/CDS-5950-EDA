@@ -15,4 +15,5 @@ These data sets are from the [Tidy Tuesday](https://github.com/rfordatascience/t
 | [Week 6](https://github.com/andrewargeros/CDS-5950-EDA/tree/main/Week%206%20-%20Video%20Games) | Video Games |
 | [Week 7](https://github.com/andrewargeros/CDS-5950-EDA/tree/main/Week%207%20-%20NCAA%20Women) | NCAA Women's Basketball |
 | [Week 8](https://github.com/andrewargeros/CDS-5950-EDA/main/Week%208%20-%20Tate%20Museum/) | The Tate Museum |
+| [Week 9](https://github.com/andrewargeros/CDS-5950-EDA/tree/main/Week%209%20-%20Water%20Sources)| Water Sources |
 
